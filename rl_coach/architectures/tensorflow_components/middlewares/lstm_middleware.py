@@ -61,8 +61,8 @@ class LSTMMiddleware(Middleware):
         self.c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
         self.h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
         self.state_init = [self.c_init, self.h_init]
-        self.c_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.c])
-        self.h_in = tf.placeholder(tf.float32, [1, lstm_cell.state_size.h])
+        self.c_in = tf.compat.v1.placeholder(tf.float32, [1, lstm_cell.state_size.c])
+        self.h_in = tf.compat.v1.placeholder(tf.float32, [1, lstm_cell.state_size.h])
         self.state_in = (self.c_in, self.h_in)
         rnn_in = tf.expand_dims(self.layers[-1], [0])
         step_size = tf.shape(self.layers[-1])[:1]

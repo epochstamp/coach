@@ -18,6 +18,8 @@ Module containing utility functions
 """
 import tensorflow as tf
 
+def softplus_sp(x, name=None):
+    return tf.nn.softplus(x) + tf.constant(1.0)
 
 def get_activation_function(activation_function_string: str):
     """
@@ -32,6 +34,8 @@ def get_activation_function(activation_function_string: str):
         'elu': tf.nn.elu,
         'selu': tf.nn.selu,
         'leaky_relu': tf.nn.leaky_relu,
+        'swish': tf.nn.swish,
+        'softplus_sp': softplus_sp,
         'none': None
     }
     assert activation_function_string in activation_functions.keys(), \

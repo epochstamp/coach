@@ -47,12 +47,12 @@ def variable_summaries(var):
 
 def local_getter(getter, name, *args, **kwargs):
     """
-    This is a wrapper around the tf.get_variable function which puts the variables in the local variables collection
+    This is a wrapper around the tf.compat.v1.get_variable function which puts the variables in the local variables collection
     instead of the global variables collection. The local variables collection will hold variables which are not shared
     between workers. these variables are also assumed to be non-trainable (the optimizer does not apply gradients to
     these variables), but we can calculate the gradients wrt these variables, and we can update their content.
     """
-    kwargs['collections'] = [tf.GraphKeys.LOCAL_VARIABLES]
+    kwargs['collections'] = [tf.compat.v1.GraphKeys.LOCAL_VARIABLES]
     return getter(name, *args, **kwargs)
 
 
@@ -97,16 +97,16 @@ class TensorFlowArchitecture(Architecture):
         self.optimizer_type = self.network_parameters.optimizer_type
         if self.ap.task_parameters.seed is not None:
             tf.set_random_seed(self.ap.task_parameters.seed)
-        with tf.variable_scope("/".join(self.name.split("/")[1:]), initializer=tf.contrib.layers.xavier_initializer(),
+        with tf.compat.v1.variable_scope("/".join(self.name.split("/")[1:]), initializer=tf.contrib.layers.xavier_initializer(),
                                custom_getter=local_getter if network_is_local and global_network else None):
-            self.global_step = tf.train.get_or_create_global_step()
+            self.global_step = tf.compat.v1.train.get_or_create_global_step()
 
             # build the network
             self.weights = self.get_model()
 
             # create the placeholder for the assigning gradients and some tensorboard summaries for the weights
             for idx, var in enumerate(self.weights):
-                placeholder = tf.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
+                placeholder = tf.compat.v1.placeholder(tf.float32, shape=var.get_shape(), name=str(idx) + '_holder')
                 self.weights_placeholders.append(placeholder)
                 if self.ap.visualization.tensorboard:
                     variable_summaries(var)
@@ -128,14 +128,14 @@ class TensorFlowArchitecture(Architecture):
             self.reset_internal_memory()
 
             if self.ap.visualization.tensorboard:
-                current_scope_summaries = tf.get_collection(tf.GraphKeys.SUMMARIES,
+                current_scope_summaries = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.SUMMARIES,
                                                             scope=tf.contrib.framework.get_name_scope())
                 self.merged = tf.summary.merge(current_scope_summaries)
 
             # initialize or restore model
             self.init_op = tf.group(
-                tf.global_variables_initializer(),
-                tf.local_variables_initializer()
+                tf.compat.v1.global_variables_initializer(),
+                tf.compat.v1.local_variables_initializer()
             )
 
             # set the fetches for training
@@ -171,13 +171,13 @@ class TensorFlowArchitecture(Architecture):
         Create locks for synchronizing the different workers during training
         :return: None
         """
-        self.lock_counter = tf.get_variable("lock_counter", [], tf.int32,
+        self.lock_counter = tf.compat.v1.get_variable("lock_counter", [], tf.int32,
                                             initializer=tf.constant_initializer(0, dtype=tf.int32),
                                             trainable=False)
         self.lock = self.lock_counter.assign_add(1, use_locking=True)
         self.lock_init = self.lock_counter.assign(0)
 
-        self.release_counter = tf.get_variable("release_counter", [], tf.int32,
+        self.release_counter = tf.compat.v1.get_variable("release_counter", [], tf.int32,
                                                initializer=tf.constant_initializer(0, dtype=tf.int32),
                                                trainable=False)
         self.release = self.release_counter.assign_add(1, use_locking=True)
@@ -191,7 +191,7 @@ class TensorFlowArchitecture(Architecture):
         """
 
         self.tensor_gradients = tf.gradients(self.total_loss, self.weights)
-        self.gradients_norm = tf.global_norm(self.tensor_gradients)
+        self.gradients_norm = tf.linalg.global_norm(self.tensor_gradients)
 
         # gradient clipping
         if self.network_parameters.clip_gradients is not None and self.network_parameters.clip_gradients != 0:
@@ -205,7 +205,7 @@ class TensorFlowArchitecture(Architecture):
         # gradients of the outputs w.r.t. the inputs
         self.gradients_wrt_inputs = [{name: tf.gradients(output, input_ph) for name, input_ph in
                                       self.inputs.items()} for output in self.outputs]
-        self.gradients_weights_ph = [tf.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
+        self.gradients_weights_ph = [tf.compat.v1.placeholder('float32', self.outputs[i].shape, 'output_gradient_weights')
                                      for i in range(len(self.outputs))]
         self.weighted_gradients = []
         for i in range(len(self.outputs)):
@@ -270,7 +270,7 @@ class TensorFlowArchitecture(Architecture):
         elif self.network_is_trainable:
             # not any of the above but is trainable? -> create an operation for applying the gradients to
             # this network weights
-            update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, scope=self.full_name)
+            update_ops = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.UPDATE_OPS, scope=self.full_name)
 
             with tf.control_dependencies(update_ops):
                 self.update_weights_from_batch_gradients = self.optimizer.apply_gradients(

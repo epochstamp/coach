@@ -36,7 +36,7 @@ def create_cluster_spec(parameters_server: str, workers: str) -> tf.train.Cluste
     return cluster_spec
 
 
-def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.ConfigProto=None) -> None:
+def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, config: tf.compat.v1.ConfigProto=None) -> None:
     """
     Create and start a parameter server
     :param cluster_spec: the ClusterSpec object representing the cluster
@@ -51,14 +51,14 @@ def create_and_start_parameters_server(cluster_spec: tf.train.ClusterSpec, confi
 
 
 def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_index: int,
-                                    use_cpu: bool=True, config: tf.ConfigProto=None) -> Tuple[str, tf.device]:
+                                    use_cpu: bool=True, config: tf.compat.v1.ConfigProto=None) -> Tuple[str, tf.device]:
     """
     Creates a worker server and a device setter used to assign the workers operations to
     :param cluster_spec: a ClusterSpec object representing the cluster
     :param task_index: the index of the worker task
     :param use_cpu: if use_cpu=True, all the agent operations will be assigned to a CPU instead of a GPU
     :param config: the tensorflow config to use
-    :return: the target string for the tf.Session and the worker device setter object
+    :return: the target string for the tf.compat.v1.Session and the worker device setter object
     """
     # Create and start a worker
     server = tf.train.Server(cluster_spec, job_name="worker", task_index=task_index, config=config)
@@ -75,10 +75,10 @@ def create_worker_server_and_device(cluster_spec: tf.train.ClusterSpec, task_ind
 
 
 def create_monitored_session(target: tf.train.Server, task_index: int,
-                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.ConfigProto=None) -> tf.Session:
+                             checkpoint_dir: str, checkpoint_save_secs: int, config: tf.compat.v1.ConfigProto=None) -> tf.compat.v1.Session:
     """
     Create a monitored session for the worker
-    :param target: the target string for the tf.Session
+    :param target: the target string for the tf.compat.v1.Session
     :param task_index: the task index of the worker
     :param checkpoint_dir: a directory path where the checkpoints will be stored
     :param checkpoint_save_secs: number of seconds between checkpoints storing

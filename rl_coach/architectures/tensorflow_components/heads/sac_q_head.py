@@ -48,15 +48,15 @@ class SACQHead(Head):
         # state is the observation fed through the input_layer, action is fed through placeholder to the header
         # each is calculating q value  : q1(s,a) and q2(s,a)
         # the output of the head is min(q1,q2)
-        self.actions = tf.placeholder(tf.float32, [None, self.num_actions], name="actions")
-        self.target = tf.placeholder(tf.float32, [None, 1], name="q_targets")
+        self.actions = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name="actions")
+        self.target = tf.compat.v1.placeholder(tf.float32, [None, 1], name="q_targets")
         self.input = [self.actions]
         self.output = []
         # Note (1) : in the author's implementation of sac (in rllab) they summarize the embedding of observation and
         # action (broadcasting the bias) in the first layer of the network.
 
         # build q1 network head
-        with tf.variable_scope("q1_head"):
+        with tf.compat.v1.variable_scope("q1_head"):
             layer_size = self.network_layers_sizes[0]
             qi_obs_emb = self.dense_layer(layer_size)(input_layer, activation=self.activation_function)
             qi_act_emb = self.dense_layer(layer_size)(self.actions, activation=self.activation_function)
@@ -68,7 +68,7 @@ class SACQHead(Head):
                                                  bias_initializer=self.output_bias_initializer)
 
         # build q2 network head
-        with tf.variable_scope("q2_head"):
+        with tf.compat.v1.variable_scope("q2_head"):
             layer_size = self.network_layers_sizes[0]
             qi_obs_emb = self.dense_layer(layer_size)(input_layer, activation=self.activation_function)
             qi_act_emb = self.dense_layer(layer_size)(self.actions, activation=self.activation_function)
@@ -93,7 +93,7 @@ class SACQHead(Head):
         self.q2_loss = 0.5*tf.reduce_mean(tf.square(self.q2_output - self.target))
         # eventually both losses are depends on different parameters so we can sum them up
         self.loss = self.q1_loss+self.q2_loss
-        tf.losses.add_loss(self.loss)
+        tf.compat.v1.losses.add_loss(self.loss)
 
     def __str__(self):
         result = [

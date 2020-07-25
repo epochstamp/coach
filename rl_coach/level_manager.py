@@ -233,7 +233,6 @@ class LevelManager(EnvironmentInterface):
         # step for several time steps
         accumulated_reward = 0
         acting_agent = self.acting_agent()
-
         for i in range(self.steps_limit.num_steps):
             # let the agent observe the result and decide if it wants to terminate the episode
             done = acting_agent.observe(env_response)

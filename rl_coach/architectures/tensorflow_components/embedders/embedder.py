@@ -75,15 +75,15 @@ class InputEmbedder(object):
                                                                      activation_function=self.activation_function,
                                                                      dropout_rate=self.dropout_rate))
 
-    def __call__(self, prev_input_placeholder: tf.placeholder=None) -> Tuple[tf.Tensor, tf.Tensor]:
+    def __call__(self, prev_input_placeholder: tf.compat.v1.placeholder=None) -> Tuple[tf.Tensor, tf.Tensor]:
         """
         Wrapper for building the module graph including scoping and loss creation
         :param prev_input_placeholder: the input to the graph
         :return: the input placeholder and the output of the last layer
         """
-        with tf.variable_scope(self.get_name()):
+        with tf.compat.v1.variable_scope(self.get_name()):
             if prev_input_placeholder is None:
-                self.input = tf.placeholder("float", shape=[None] + self.input_size, name=self.get_name())
+                self.input = tf.compat.v1.placeholder("float", shape=[None] + self.input_size, name=self.get_name())
             else:
                 self.input = prev_input_placeholder
             self._build_module()

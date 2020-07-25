@@ -39,7 +39,7 @@ class SACPolicyHead(Head):
         self.squash = squash        # squashing using tanh
 
     def _build_module(self, input_layer):
-        self.given_raw_actions = tf.placeholder(tf.float32, [None, self.num_actions], name="actions")
+        self.given_raw_actions = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name="actions")
         self.input = [self.given_raw_actions]
         self.output = []
 

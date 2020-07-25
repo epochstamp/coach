@@ -64,11 +64,11 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         # variable_scope() call and also recover the name space using name_scope
         if variable_scope in GeneralTensorFlowNetwork.variable_scopes_dict:
             variable_scope = GeneralTensorFlowNetwork.variable_scopes_dict[variable_scope]
-            with tf.variable_scope(variable_scope, auxiliary_name_scope=False) as vs:
+            with tf.compat.v1.variable_scope(variable_scope, auxiliary_name_scope=False) as vs:
                 with tf.name_scope(vs.original_name_scope):
                     return construct_on_device()
         else:
-            with tf.variable_scope(variable_scope, auxiliary_name_scope=True) as vs:
+            with tf.compat.v1.variable_scope(variable_scope, auxiliary_name_scope=True) as vs:
                 # Add variable_scope object to dictionary for next call to construct
                 GeneralTensorFlowNetwork.variable_scopes_dict[variable_scope] = vs
                 return construct_on_device()
@@ -172,7 +172,6 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
         allowed_inputs = copy.copy(self.spaces.state.sub_spaces)
         allowed_inputs["action"] = copy.copy(self.spaces.action)
         allowed_inputs["goal"] = copy.copy(self.spaces.goal)
-
         if input_name not in allowed_inputs.keys():
             raise ValueError("The key for the input embedder ({}) must match one of the following keys: {}"
                              .format(input_name, allowed_inputs.keys()))
@@ -237,12 +236,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             raise ValueError("Exactly one middleware type should be defined")
 
         # ops for defining the training / testing phase
-        self.is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-        self.is_training_placeholder = tf.placeholder("bool")
-        self.assign_is_training = tf.assign(self.is_training, self.is_training_placeholder)
+        self.is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+        self.is_training_placeholder = tf.compat.v1.placeholder("bool")
+        self.assign_is_training = tf.compat.v1.assign(self.is_training, self.is_training_placeholder)
 
         for network_idx in range(self.num_networks):
-            with tf.variable_scope('network_{}'.format(network_idx)):
+            with tf.compat.v1.variable_scope('network_{}'.format(network_idx)):
 
                 ####################
                 # Input Embeddings #
@@ -310,12 +309,12 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
                         # rescale the gradients from the head
                         self.gradients_from_head_rescalers.append(
-                            tf.get_variable('gradients_from_head_{}-{}_rescalers'.format(head_idx, head_copy_idx),
+                            tf.compat.v1.get_variable('gradients_from_head_{}-{}_rescalers'.format(head_idx, head_copy_idx),
                                             initializer=float(head_params.rescale_gradient_from_head_by_factor),
                                             dtype=tf.float32))
 
                         self.gradients_from_head_rescalers_placeholders.append(
-                            tf.placeholder('float',
+                            tf.compat.v1.placeholder('float',
                                            name='gradients_from_head_{}-{}_rescalers'.format(head_type_idx, head_copy_idx)))
 
                         self.update_head_rescaler_value_ops.append(self.gradients_from_head_rescalers[head_count].assign(
@@ -343,13 +342,13 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
 
         # model weights
         if not self.distributed_training or self.network_is_global:
-            self.weights = [var for var in tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=self.full_name) if
+            self.weights = [var for var in tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope=self.full_name) if
                             'global_step' not in var.name]
         else:
-            self.weights = [var for var in tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)]
+            self.weights = [var for var in tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES, scope=self.full_name)]
 
         # Losses
-        self.losses = tf.losses.get_losses(self.full_name)
+        self.losses = tf.compat.v1.losses.get_losses(self.full_name)
 
         # L2 regularization
         if self.network_parameters.l2_regularization != 0:
@@ -388,7 +387,7 @@ class GeneralTensorFlowNetwork(TensorFlowArchitecture):
             # -> create an optimizer
 
             if self.network_parameters.optimizer_type == 'Adam':
-                self.optimizer = tf.train.AdamOptimizer(learning_rate=self.current_learning_rate,
+                self.optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate=self.current_learning_rate,
                                                         beta1=self.network_parameters.adam_optimizer_beta1,
                                                         beta2=self.network_parameters.adam_optimizer_beta2,
                                                         epsilon=self.network_parameters.optimizer_epsilon)

@@ -173,7 +173,7 @@ class GraphManager(object):
     @staticmethod
     def _create_worker_or_parameters_server_tf(task_parameters: DistributedTaskParameters):
         import tensorflow as tf
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
         config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
         config.gpu_options.per_process_gpu_memory_fraction = 0.2
@@ -212,7 +212,7 @@ class GraphManager(object):
 
     def _create_session_tf(self, task_parameters: TaskParameters):
         import tensorflow as tf
-        config = tf.ConfigProto()
+        config = tf.compat.v1.ConfigProto()
         config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
         config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
         # config.gpu_options.per_process_gpu_memory_fraction = 0.2
@@ -239,7 +239,7 @@ class GraphManager(object):
                                                       config=config))
         else:
             # regular session
-            self.set_session(tf.Session(config=config))
+            self.set_session(tf.compat.v1.Session(config=config))
 
         # the TF graph is static, and therefore is saved once - in the beginning of the experiment
         if hasattr(self.task_parameters, 'checkpoint_save_dir') and self.task_parameters.checkpoint_save_dir:

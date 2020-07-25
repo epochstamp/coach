@@ -99,6 +99,7 @@ class Agent(AgentInterface):
                 self.shared_memory_scratchpad.add(self.memory_lookup_name, self.memory)
 
         # set devices
+        agent_parameters.task_parameters.use_cpu = True
         if type(agent_parameters.task_parameters) == DistributedTaskParameters:
             self.has_global = True
             self.replicated_device = agent_parameters.task_parameters.device

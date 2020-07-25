@@ -40,9 +40,9 @@ class ACERPolicyHead(Head):
         if hasattr(agent_parameters.algorithm, 'beta_entropy'):
             # we set the beta value as a tf variable so it can be updated later if needed
             self.beta = tf.Variable(float(agent_parameters.algorithm.beta_entropy),
-                                    trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
-            self.beta_placeholder = tf.placeholder('float')
-            self.set_beta = tf.assign(self.beta, self.beta_placeholder)
+                                    trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
+            self.beta_placeholder = tf.compat.v1.placeholder('float')
+            self.set_beta = tf.compat.v1.assign(self.beta, self.beta_placeholder)
 
     def _build_module(self, input_layer):
         if isinstance(self.spaces.action, DiscreteActionSpace):
@@ -58,18 +58,18 @@ class ACERPolicyHead(Head):
                 self.regularizations += [-tf.multiply(self.beta, self.entropy, name='entropy_regularization')]
 
             # Truncated importance sampling with bias corrections
-            importance_sampling_weight = tf.placeholder(tf.float32, [None, self.num_actions],
+            importance_sampling_weight = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions],
                                                         name='{}_importance_sampling_weight'.format(self.get_name()))
             self.input.append(importance_sampling_weight)
-            importance_sampling_weight_i = tf.placeholder(tf.float32, [None],
+            importance_sampling_weight_i = tf.compat.v1.placeholder(tf.float32, [None],
                                                           name='{}_importance_sampling_weight_i'.format(self.get_name()))
             self.input.append(importance_sampling_weight_i)
 
-            V_values = tf.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))
+            V_values = tf.compat.v1.placeholder(tf.float32, [None], name='{}_V_values'.format(self.get_name()))
             self.target.append(V_values)
-            Q_values = tf.placeholder(tf.float32, [None, self.num_actions], name='{}_Q_values'.format(self.get_name()))
+            Q_values = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name='{}_Q_values'.format(self.get_name()))
             self.input.append(Q_values)
-            Q_retrace = tf.placeholder(tf.float32, [None], name='{}_Q_retrace'.format(self.get_name()))
+            Q_retrace = tf.compat.v1.placeholder(tf.float32, [None], name='{}_Q_retrace'.format(self.get_name()))
             self.input.append(Q_retrace)
 
             action_log_probs_wrt_policy = self.policy_distribution.log_prob(self.actions)
@@ -88,11 +88,11 @@ class ACERPolicyHead(Head):
             self.bias_correction_loss = -tf.reduce_mean(bias_correction_gain)
 
             self.loss = self.probability_loss + self.bias_correction_loss
-            tf.losses.add_loss(self.loss)
+            tf.compat.v1.losses.add_loss(self.loss)
 
             # Trust region
             batch_size = tf.to_float(tf.shape(input_layer)[0])
-            average_policy = tf.placeholder(tf.float32, [None, self.num_actions],
+            average_policy = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions],
                                             name='{}_average_policy'.format(self.get_name()))
             self.input.append(average_policy)
             average_policy_distribution = tf.contrib.distributions.Categorical(probs=(average_policy + eps))
@@ -114,7 +114,7 @@ class ACERPolicyHead(Head):
 
     def _build_discrete_net(self, input_layer, action_space):
         self.num_actions = len(action_space.actions)
-        self.actions = tf.placeholder(tf.int32, [None], name='{}_actions'.format(self.get_name()))
+        self.actions = tf.compat.v1.placeholder(tf.int32, [None], name='{}_actions'.format(self.get_name()))
         self.input.append(self.actions)
 
         policy_values = self.dense_layer(self.num_actions)(input_layer, name='fc')

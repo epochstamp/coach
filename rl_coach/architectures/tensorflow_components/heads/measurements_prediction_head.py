@@ -39,13 +39,13 @@ class MeasurementsPredictionHead(Head):
     def _build_module(self, input_layer):
         # This is almost exactly the same as Dueling Network but we predict the future measurements for each action
         # actions expectation tower (expectation stream) - E
-        with tf.variable_scope("expectation_stream"):
+        with tf.compat.v1.variable_scope("expectation_stream"):
             expectation_stream = self.dense_layer(256)(input_layer, activation=self.activation_function, name='fc1')
             expectation_stream = self.dense_layer(self.multi_step_measurements_size)(expectation_stream, name='output')
             expectation_stream = tf.expand_dims(expectation_stream, axis=1)
 
         # action fine differences tower (action stream) - A
-        with tf.variable_scope("action_stream"):
+        with tf.compat.v1.variable_scope("action_stream"):
             action_stream = self.dense_layer(256)(input_layer, activation=self.activation_function, name='fc1')
             action_stream = self.dense_layer(self.num_actions * self.multi_step_measurements_size)(action_stream,
                                                                                                    name='output')
@@ -55,11 +55,11 @@ class MeasurementsPredictionHead(Head):
 
         # merge to future measurements predictions
         self.output = tf.add(expectation_stream, action_stream, name='output')
-        self.target = tf.placeholder(tf.float32, [None, self.num_actions, self.multi_step_measurements_size],
+        self.target = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions, self.multi_step_measurements_size],
                                      name="targets")
         targets_nonan = tf.where(tf.is_nan(self.target), self.output, self.target)
         self.loss = tf.reduce_sum(tf.reduce_mean(tf.square(targets_nonan - self.output), reduction_indices=0))
-        tf.losses.add_loss(self.loss_weight[0] * self.loss)
+        tf.compat.v1.losses.add_loss(self.loss_weight[0] * self.loss)
 
     def __str__(self):
         result = [

@@ -22,7 +22,7 @@ def test_embedder(reset):
         embedder = VectorEmbedder(np.array([10, 10]), name="test")
 
     # creating a simple vector embedder
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+    is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
     pre_ops = len(tf.get_default_graph().get_operations())
 
     embedder = VectorEmbedder(np.array([10]), name="test", is_training=is_training)
@@ -38,8 +38,8 @@ def test_embedder(reset):
 
     # try feeding a batch of one example
     input = np.random.rand(1, 10)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
     output = sess.run(embedder.output, {embedder.input: input})
     assert output.shape == (1, 256)
 
@@ -54,7 +54,7 @@ def test_embedder(reset):
 @pytest.mark.unit_test
 def test_complex_embedder(reset):
     # creating a deep vector embedder
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+    is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
     embedder = VectorEmbedder(np.array([10]), name="test", scheme=EmbedderScheme.Deep, is_training=is_training)
 
     # call the embedder
@@ -62,8 +62,8 @@ def test_complex_embedder(reset):
 
     # try feeding a batch of one example
     input = np.random.rand(1, 10)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
     output = sess.run(embedder.output, {embedder.input: input})
     assert output.shape == (1, 128)  # should have flattened the input
 
@@ -71,7 +71,7 @@ def test_complex_embedder(reset):
 @pytest.mark.unit_test
 def test_activation_function(reset):
     # creating a deep vector embedder with relu
-    is_training = tf.Variable(False, trainable=False, collections=[tf.GraphKeys.LOCAL_VARIABLES])
+    is_training = tf.Variable(False, trainable=False, collections=[tf.compat.v1.GraphKeys.LOCAL_VARIABLES])
     embedder = VectorEmbedder(np.array([10]), name="relu", scheme=EmbedderScheme.Deep,
                               activation_function=tf.nn.relu, is_training=is_training)
 
@@ -80,8 +80,8 @@ def test_activation_function(reset):
 
     # try feeding a batch of one example
     input = np.random.rand(1, 10)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
     output = sess.run(embedder.output, {embedder.input: input})
     assert np.all(output >= 0)  # should have flattened the input
 
@@ -94,7 +94,7 @@ def test_activation_function(reset):
 
     # try feeding a batch of one example
     input = np.random.rand(1, 10)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
+    sess = tf.compat.v1.Session()
+    sess.run(tf.compat.v1.global_variables_initializer())
     output = sess.run(embedder_tanh.output, {embedder_tanh.input: input})
     assert np.all(output >= -1) and np.all(output <= 1)

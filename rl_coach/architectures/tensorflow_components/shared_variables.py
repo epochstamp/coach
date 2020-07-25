@@ -42,22 +42,22 @@ class TFSharedRunningStats(SharedRunningStats):
         """
 
         self.clip_values = clip_values
-        with tf.variable_scope(self.name):
-            self._sum = tf.get_variable(
+        with tf.compat.v1.variable_scope(self.name):
+            self._sum = tf.compat.v1.get_variable(
                 dtype=tf.float64,
                 initializer=tf.constant_initializer(0.0),
                 name="running_sum", trainable=False, shape=shape, validate_shape=False,
-                collections=[tf.GraphKeys.GLOBAL_VARIABLES])
-            self._sum_squares = tf.get_variable(
+                collections=[tf.compat.v1.GraphKeys.GLOBAL_VARIABLES])
+            self._sum_squares = tf.compat.v1.get_variable(
                 dtype=tf.float64,
                 initializer=tf.constant_initializer(self.epsilon),
                 name="running_sum_squares", trainable=False, shape=shape, validate_shape=False,
-                collections=[tf.GraphKeys.GLOBAL_VARIABLES])
-            self._count = tf.get_variable(
+                collections=[tf.compat.v1.GraphKeys.GLOBAL_VARIABLES])
+            self._count = tf.compat.v1.get_variable(
                 dtype=tf.float64,
                 shape=(),
                 initializer=tf.constant_initializer(self.epsilon),
-                name="count", trainable=False, collections=[tf.GraphKeys.GLOBAL_VARIABLES])
+                name="count", trainable=False, collections=[tf.compat.v1.GraphKeys.GLOBAL_VARIABLES])
 
             self._shape = None
             self._mean = tf.div(self._sum, self._count, name="mean")
@@ -66,15 +66,15 @@ class TFSharedRunningStats(SharedRunningStats):
             self.tf_mean = tf.cast(self._mean, 'float32')
             self.tf_std = tf.cast(self._std, 'float32')
 
-            self.new_sum = tf.placeholder(dtype=tf.float64, name='sum')
-            self.new_sum_squares = tf.placeholder(dtype=tf.float64, name='var')
-            self.newcount = tf.placeholder(shape=[], dtype=tf.float64, name='count')
+            self.new_sum = tf.compat.v1.placeholder(dtype=tf.float64, name='sum')
+            self.new_sum_squares = tf.compat.v1.placeholder(dtype=tf.float64, name='var')
+            self.newcount = tf.compat.v1.placeholder(shape=[], dtype=tf.float64, name='count')
 
-            self._inc_sum = tf.assign_add(self._sum, self.new_sum, use_locking=True)
-            self._inc_sum_squares = tf.assign_add(self._sum_squares, self.new_sum_squares, use_locking=True)
-            self._inc_count = tf.assign_add(self._count, self.newcount, use_locking=True)
+            self._inc_sum = tf.compat.v1.assign_add(self._sum, self.new_sum, use_locking=True)
+            self._inc_sum_squares = tf.compat.v1.assign_add(self._sum_squares, self.new_sum_squares, use_locking=True)
+            self._inc_count = tf.compat.v1.assign_add(self._count, self.newcount, use_locking=True)
 
-            self.raw_obs = tf.placeholder(dtype=tf.float64, name='raw_obs')
+            self.raw_obs = tf.compat.v1.placeholder(dtype=tf.float64, name='raw_obs')
             self.normalized_obs = (self.raw_obs - self._mean) / self._std
             if self.clip_values is not None:
                 self.clipped_obs = tf.clip_by_value(self.normalized_obs, self.clip_values[0], self.clip_values[1])

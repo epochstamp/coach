@@ -178,8 +178,8 @@ class Dense(layers.Dense):
         """
         if bias_initializer is None:
             bias_initializer = tf.zeros_initializer()
-        return tf.layers.dense(input_layer, self.units, name=name, kernel_initializer=kernel_initializer,
-                               activation=activation, bias_initializer=bias_initializer)
+        return tf.keras.layers.Dense(self.units, name=name, kernel_initializer=kernel_initializer,
+                               activation=activation, bias_initializer=bias_initializer)(input_layer)
 
     @staticmethod
     @reg_to_tf_instance(layers.Dense)
@@ -239,14 +239,14 @@ class NoisyNetDense(layers.NoisyNetDense):
             kernel_mean_initializer = kernel_stddev_initializer = kernel_initializer
         if bias_initializer is None:
             bias_initializer = tf.zeros_initializer()
-        with tf.variable_scope(None, default_name=name):
-            weight_mean = tf.get_variable('weight_mean', shape=(num_inputs, num_outputs),
+        with tf.compat.v1.variable_scope(None, default_name=name):
+            weight_mean = tf.compat.v1.get_variable('weight_mean', shape=(num_inputs, num_outputs),
                                           initializer=kernel_mean_initializer)
-            bias_mean = tf.get_variable('bias_mean', shape=(num_outputs,), initializer=bias_initializer)
+            bias_mean = tf.compat.v1.get_variable('bias_mean', shape=(num_outputs,), initializer=bias_initializer)
 
-            weight_stddev = tf.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
+            weight_stddev = tf.compat.v1.get_variable('weight_stddev', shape=(num_inputs, num_outputs),
                                             initializer=kernel_stddev_initializer)
-            bias_stddev = tf.get_variable('bias_stddev', shape=(num_outputs,),
+            bias_stddev = tf.compat.v1.get_variable('bias_stddev', shape=(num_outputs,),
                                           initializer=kernel_stddev_initializer)
             bias_noise = _f(tf.random_normal((num_outputs,)))
             weight_noise = _factorized_noise(num_inputs, num_outputs)

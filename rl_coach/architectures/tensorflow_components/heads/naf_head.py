@@ -40,11 +40,11 @@ class NAFHead(Head):
         if agent_parameters.network_wrappers[self.network_name].replace_mse_with_huber_loss:
             self.loss_type = tf.losses.huber_loss
         else:
-            self.loss_type = tf.losses.mean_squared_error
+            self.loss_type = tf.compat.v1.losses.mean_squared_error
 
     def _build_module(self, input_layer):
         # NAF
-        self.action = tf.placeholder(tf.float32, [None, self.num_actions], name="action")
+        self.action = tf.compat.v1.placeholder(tf.float32, [None, self.num_actions], name="action")
         self.input = self.action
 
         # V Head

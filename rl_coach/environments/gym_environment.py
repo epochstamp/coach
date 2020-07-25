@@ -462,6 +462,7 @@ class GymEnvironment(Environment):
                 and not force_environment_reset and self.env.env._elapsed_steps < self.env.env._max_episode_steps:
             self.step(self.action_space.default_action)
         else:
+            self.env.phase = self.phase.value
             self.state = self.env.reset()
             self.state = self._wrap_state(self.state)
             self._update_ale_lives()

@@ -28,7 +28,7 @@ class GlobalVariableSaver(Saver):
         self._names = [name]
         # if graph is finalized, savers must have already already been added. This happens
         # in the case of a MonitoredSession
-        self._variables = tf.global_variables()
+        self._variables = tf.compat.v1.global_variables()
 
         # target network is never saved or restored directly from checkpoint, so we are removing all its variables from the list
         # the target network would be synched back from the online network in graph_manager.improve(...), at the beginning of the run flow.
@@ -39,11 +39,11 @@ class GlobalVariableSaver(Saver):
         self._variable_placeholders = []
         self._variable_update_ops = []
         for v in self._variables:
-            variable_placeholder = tf.placeholder(v.dtype, shape=v.get_shape())
+            variable_placeholder = tf.compat.v1.placeholder(v.dtype, shape=v.get_shape())
             self._variable_placeholders.append(variable_placeholder)
             self._variable_update_ops.append(v.assign(variable_placeholder))
 
-        self._saver = tf.train.Saver(self._variables, max_to_keep=None)
+        self._saver = tf.compat.v1.train.Saver(self._variables, max_to_keep=None)
 
     @property
     def path(self):

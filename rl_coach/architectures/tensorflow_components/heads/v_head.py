@@ -35,7 +35,7 @@ class VHead(Head):
         if agent_parameters.network_wrappers[self.network_name.split('/')[0]].replace_mse_with_huber_loss:
             self.loss_type = tf.losses.huber_loss
         else:
-            self.loss_type = tf.losses.mean_squared_error
+            self.loss_type = tf.compat.v1.losses.mean_squared_error
 
         self.initializer = initializer
         self.output_bias_initializer = output_bias_initializer

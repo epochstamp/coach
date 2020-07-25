@@ -38,8 +38,8 @@ class QuantileRegressionQHead(QHead):
         self.loss_type = []
 
     def _build_module(self, input_layer):
-        self.actions = tf.placeholder(tf.int32, [None, 2], name="actions")
-        self.quantile_midpoints = tf.placeholder(tf.float32, [None, self.num_atoms], name="quantile_midpoints")
+        self.actions = tf.compat.v1.placeholder(tf.int32, [None, 2], name="actions")
+        self.quantile_midpoints = tf.compat.v1.placeholder(tf.float32, [None, self.num_atoms], name="quantile_midpoints")
         self.input = [self.actions, self.quantile_midpoints]
 
         # the output of the head is the N unordered quantile locations {theta_1, ..., theta_N}
@@ -48,7 +48,7 @@ class QuantileRegressionQHead(QHead):
         quantiles_locations = tf.reshape(quantiles_locations, (tf.shape(quantiles_locations)[0], self.num_actions, self.num_atoms))
         self.output = quantiles_locations
 
-        self.quantiles = tf.placeholder(tf.float32, shape=(None, self.num_atoms), name="quantiles")
+        self.quantiles = tf.compat.v1.placeholder(tf.float32, shape=(None, self.num_atoms), name="quantiles")
         self.target = self.quantiles
 
         # only the quantiles of the taken action are taken into account
@@ -73,7 +73,7 @@ class QuantileRegressionQHead(QHead):
         # Quantile regression loss (the probability for each quantile is 1/num_quantiles)
         quantile_regression_loss = tf.reduce_sum(quantile_huber_loss) / float(self.num_atoms)
         self.loss = quantile_regression_loss
-        tf.losses.add_loss(self.loss)
+        tf.compat.v1.losses.add_loss(self.loss)
 
         self.q_values = tf.tensordot(tf.cast(self.output, tf.float64), self.quantile_probabilities, 1)
 

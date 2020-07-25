@@ -33,7 +33,7 @@ def test_embedder(reset):
 
     # try feeding a batch of one example  # TODO: consider auto converting to batch
     input = np.random.rand(1, 10, 10)
-    sess = tf.Session()
+    sess = tf.compat.v1.Session()
     output = sess.run(embedder.output, {embedder.input: input})
     assert output.shape == (1, 100)  # should have flattened the input
 

@@ -36,8 +36,8 @@ def assert_arrays_ones_shape(arrays, shape, name):
 
 @pytest.mark.unit_test
 def test_global_variable_saver_to_arrays(variable, name, shape):
-    with tf.Session() as session:
-        session.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as session:
+        session.run(tf.compat.v1.global_variables_initializer())
         session.run(variable.assign(tf.ones(shape)))
 
         saver = GlobalVariableSaver("name")
@@ -47,8 +47,8 @@ def test_global_variable_saver_to_arrays(variable, name, shape):
 
 @pytest.mark.unit_test
 def test_global_variable_saver_from_arrays(variable, name, shape):
-    with tf.Session() as session:
-        session.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as session:
+        session.run(tf.compat.v1.global_variables_initializer())
 
         saver = GlobalVariableSaver("name")
         saver.from_arrays(session, {name: np.ones(shape)})
@@ -58,8 +58,8 @@ def test_global_variable_saver_from_arrays(variable, name, shape):
 
 @pytest.mark.unit_test
 def test_global_variable_saver_to_string(variable, name, shape):
-    with tf.Session() as session:
-        session.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as session:
+        session.run(tf.compat.v1.global_variables_initializer())
         session.run(variable.assign(tf.ones(shape)))
 
         saver = GlobalVariableSaver("name")
@@ -70,8 +70,8 @@ def test_global_variable_saver_to_string(variable, name, shape):
 
 @pytest.mark.unit_test
 def test_global_variable_saver_from_string(variable, name, shape):
-    with tf.Session() as session:
-        session.run(tf.global_variables_initializer())
+    with tf.compat.v1.Session() as session:
+        session.run(tf.compat.v1.global_variables_initializer())
 
         saver = GlobalVariableSaver("name")
         saver.from_string(session, pickle.dumps({name: np.ones(shape)}, protocol=-1))

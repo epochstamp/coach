@@ -43,8 +43,8 @@ def test_random_sample_from_dnd(dnd: QDND):
     # calculate_normalization_factor
     sampled_embeddings = dnd.sample_embeddings(NUM_SAMPLED_EMBEDDINGS)
     coefficient = 1/(NUM_SAMPLED_EMBEDDINGS * (NUM_SAMPLED_EMBEDDINGS - 1.0))
-    tf_current_embedding = tf.placeholder(tf.float32, shape=(EMBEDDING_SIZE), name='current_embedding')
-    tf_other_embeddings = tf.placeholder(tf.float32, shape=(NUM_SAMPLED_EMBEDDINGS - 1, EMBEDDING_SIZE), name='other_embeddings')
+    tf_current_embedding = tf.compat.v1.placeholder(tf.float32, shape=(EMBEDDING_SIZE), name='current_embedding')
+    tf_other_embeddings = tf.compat.v1.placeholder(tf.float32, shape=(NUM_SAMPLED_EMBEDDINGS - 1, EMBEDDING_SIZE), name='other_embeddings')
 
     sub = tf_current_embedding - tf_other_embeddings
     square = tf.square(sub)
@@ -55,7 +55,7 @@ def test_random_sample_from_dnd(dnd: QDND):
     ###########################
     # more efficient method
     ###########################
-    sampled_embeddings_expanded = tf.placeholder(
+    sampled_embeddings_expanded = tf.compat.v1.placeholder(
         tf.float32, shape=(1, NUM_SAMPLED_EMBEDDINGS, EMBEDDING_SIZE), name='sampled_embeddings_expanded')
     sampled_embeddings_tiled = tf.tile(sampled_embeddings_expanded, (sampled_embeddings_expanded.shape[1], 1, 1))
     sampled_embeddings_transposed = tf.transpose(sampled_embeddings_tiled, (1, 0, 2))
@@ -63,11 +63,11 @@ def test_random_sample_from_dnd(dnd: QDND):
     square2 = tf.square(sub2)
     result2 = tf.reduce_sum(square2)
 
-    config = tf.ConfigProto()
+    config = tf.compat.v1.ConfigProto()
     config.allow_soft_placement = True  # allow placing ops on cpu if they are not fit for gpu
     config.gpu_options.allow_growth = True  # allow the gpu memory allocated for the worker to grow if needed
 
-    sess = tf.Session(config=config)
+    sess = tf.compat.v1.Session(config=config)
 
     sum1 = 0
     start = time.time()
