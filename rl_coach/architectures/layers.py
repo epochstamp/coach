@@ -76,11 +76,3 @@ class NoisyNetDense(object):
 
     def __str__(self):
         return "Noisy Dense (num outputs = {})".format(self.units)
-
-
-class GRU(object):
-    """
-    Gated Recurrent Unit layer
-    """
-
-    def __init__(self, unit: int, recurrent_activation: str, )

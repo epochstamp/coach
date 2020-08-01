@@ -33,3 +33,5 @@ trace_test*
 .cache/
 *.pyc
 coachenv
+rl_coach/environments/decision_process/
+rl_coach/presets/MeryGrid_ClippedPPO.py
